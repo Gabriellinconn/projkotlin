@@ -18,8 +18,8 @@ class SapatoViewModel(
 
     init {
         viewModelScope.launch {
-            repository.listarAfazeres().collectLatest { listaDeAfazeres ->
-                _sapatos.value = listaDeAfazeres
+            repository.listarSapatos().collectLatest { listaDeSapatos ->
+                _sapatos.value = listaDeSapatos
             } //.collectLastest
         }
     }

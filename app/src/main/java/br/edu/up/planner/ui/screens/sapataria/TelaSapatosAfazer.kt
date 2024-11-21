@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -29,24 +30,14 @@ object SapatosRota {
     const val TELA_INCLUIR_SAPATOS_ROTA = "incluir_sapatos"
 }
 
-// Dados do sapato
-data class SapatosAfazer(
-    var pago: Boolean,
-    var nomeSapato: String,
-    var descricao: String,
-    var concluido: Boolean = false,
-    var preco: Double,
-    var formaPagamento: Int, // 1 = dinheiro, 2 = cartão, 3 = pix, 4 = não informado
-    var par: Boolean = false,
-    var id: Int? = null
-)
+
 
 // Tela principal
 @Composable
 fun TelaSapatosAfazer(drawerState: DrawerState, navController: NavHostController) {
     val serviçosSapatos = mutableListOf(
-        SapatosAfazer(pago = true, nomeSapato = "Tênis Nike", preco = 18.00, formaPagamento = 1, par = false, concluido = false, descricao = "Reparar sola", id = 1),
-        SapatosAfazer(pago = false, nomeSapato = "Tênis Adidas", preco = 50.00, formaPagamento = 4, par = true, concluido = true, descricao = "Trocar cadarço", id = 2)
+        Sapato(pago = true, nomeSapato = "Tênis Nike", preco = 18.00, formaPagamento = 1, par = false, concluido = false, descricao = "Reparar sola", id = 1),
+        Sapato(pago = false, nomeSapato = "Tênis Adidas", preco = 50.00, formaPagamento = 4, par = true, concluido = true, descricao = "Trocar cadarço", id = 2)
     )
 
     val navCtrlSapatos = rememberNavController()
@@ -67,7 +58,10 @@ fun TelaSapatosAfazer(drawerState: DrawerState, navController: NavHostController
                         TelaListagemSapatos(sapatosAfazer = serviçosSapatos)
                     }
                     composable(SapatosRota.TELA_INCLUIR_SAPATOS_ROTA) {
-                        TelaIncluirSapatos(navController = navCtrlSapatos)
+                        TelaIncluirSapatos(navController = navCtrlSapatos, viewModel = SapatoViewModel(
+                            viewModel()
+                        )
+                        )
                     }
                 }
             }
@@ -78,7 +72,7 @@ fun TelaSapatosAfazer(drawerState: DrawerState, navController: NavHostController
 
 // Tela de listagem
 @Composable
-fun TelaListagemSapatos(sapatosAfazer: List<SapatosAfazer>) {
+fun TelaListagemSapatos(sapatosAfazer: List<Sapato>) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -93,7 +87,7 @@ fun TelaListagemSapatos(sapatosAfazer: List<SapatosAfazer>) {
 
 // Card de um sapato
 @Composable
-fun SapatoCard(sapatoAfazer: SapatosAfazer) {
+fun SapatoCard(sapatoAfazer: Sapato) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -162,10 +156,24 @@ fun SapatoCard(sapatoAfazer: SapatosAfazer) {
 // Tela de inclusão
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TelaIncluirSapatos(navController: NavController) {
-    var nomeCliente by remember { mutableStateOf("") }
-    var tipoSapato by remember { mutableStateOf("") }
-    var tarefa by remember { mutableStateOf("") }
+fun TelaIncluirSapatos(navController: NavController, viewModel: SapatoViewModel, sapatoId: Int? =null) {
+
+    //                    var id: Int? = null,
+//                val nomeSapato: String,
+//                val descricao: String,
+//                val concluido: Boolean = false,
+//                val preco: Double,
+//                val formaPagamento: Int,
+//                val par: Boolean = false
+
+    var nomeSapato by remember { mutableStateOf("") }
+    var descricao by remember { mutableStateOf("") }
+    var concluido by remember { mutableStateOf((false)) }
+    var preco by remember { mutableStateOf((0.0)) }
+    var formaPagamento by remember { mutableStateOf(0) }
+    var par by remember { mutableStateOf(false) }
+    var pago by remember { mutableStateOf((false)) }
+
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -179,40 +187,41 @@ fun TelaIncluirSapatos(navController: NavController) {
         Text(text = "Adicionar Pedido", fontSize = 24.sp, color = Color.Black)
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
-            value = nomeCliente,
-            onValueChange = { nomeCliente = it },
-            label = { Text("Nome do Cliente") },
+            value = nomeSapato,
+            onValueChange = { nomeSapato = it },
+            label = { Text("Nome do sapato") },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
-            value = tipoSapato,
-            onValueChange = { tipoSapato = it },
+            value = descricao,
+            onValueChange = { descricao = it },
             label = { Text("Tipo de Sapato") },
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.height(16.dp))
-        OutlinedTextField(
-            value = tarefa,
-            onValueChange = { tarefa = it },
-            label = { Text("O que precisa fazer") },
-            modifier = Modifier.fillMaxWidth()
-        )
+
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = {
-            // Adiciona o sapato
-            val sapatoSalvar = SapatosAfazer(
-                pago = false,
-                nomeSapato = tipoSapato,
-                descricao = tarefa,
-                concluido = false,
-                preco = 100.0, // preço fixo de exemplo
-                formaPagamento = 1, // tipo de pagamento
-                par = true // supondo que o sapato seja par
-            )
-            // Salvar o sapato no repositório (futuramente)
-            // Exemplo: viewModel.gravar(sapatoSalvar)
-            navController.popBackStack()
+            coroutineScope.launch {
+
+                // Adiciona o sapato
+                val sapatoSalvar = Sapato(
+                    id = sapatoId ?: 0, // Se sapatoId for nulo, atribui 0 (ou qualquer outro valor default)
+                    nomeSapato = nomeSapato,
+                    descricao = descricao,
+                    concluido = concluido,
+                    preco = preco,
+                    formaPagamento = formaPagamento,
+                    par = par,
+                    pago = pago
+
+
+                )
+                // Salvar o sapato no repositório (futuramente)
+                // Exemplo: viewModel.gravar(sapatoSalvar)
+                viewModel.gravar(sapatoSalvar)
+                navController.popBackStack()
+            }
         }) {
             Text("Adicionar Pedido")
         }
@@ -229,5 +238,4 @@ fun FloatButton(navController: NavController) {
             imageVector = Icons.Default.Add,
             contentDescription = "Adicionar"
         )
-    }
-}
+    }}

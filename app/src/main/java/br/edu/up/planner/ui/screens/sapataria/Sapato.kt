@@ -8,9 +8,13 @@ import androidx.room.PrimaryKey
 data class Sapato(
     @PrimaryKey(autoGenerate = true)
     var id: Int? = null,
-    val titulo: String,
+    val nomeSapato: String,
     val descricao: String,
-    val concluido: Boolean = false
-){
-    constructor() : this(null, "", "", false)
-}
+    val concluido: Boolean = false,
+    val preco: Double,
+    val formaPagamento: Int,
+    val par: Boolean = false,
+    val pago: Boolean = false
+
+)
+
