@@ -5,6 +5,6 @@ import kotlinx.coroutines.flow.Flow
 interface IRepository {
     fun listarChaves(): Flow<List<Chave>>
     suspend fun buscarChavePorId(idx: Int): Chave?
-    suspend fun gravarChave(afazer: Chave)
-    suspend fun excluirChave(afazer: Chave)
+    suspend fun gravarChave(chave: Chave)
+    suspend fun excluirChave(chave: Chave)
 }

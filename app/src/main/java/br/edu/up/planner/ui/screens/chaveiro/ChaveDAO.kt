@@ -6,28 +6,22 @@ import androidx.room.Query
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
-//INFRAESTRUTURA DE BANCO DE DADOS
-//https://developer.android.com/training/data-storage/room
-
-// Objetos de manipulação do banco de dados
 @Dao
 interface ChaveDAO {
 
-    //Listar
-    @Query("select * from chave")
+    // Listar todas as chaves
+    @Query("SELECT * FROM chave")
     fun listarChaves(): Flow<List<Chave>>
-    //suspend fun listarAfazeres(): List<Afazer>
 
-    //Buscar por Id
-    @Query("select * from chave where chaveId = :idx")
+    // Buscar chave por ID
+    @Query("SELECT * FROM chave WHERE chaveId = :idx LIMIT 1")
     suspend fun buscarChavePorId(idx: Int): Chave
 
-    //Gravar @Update @Insert
+    // Inserir ou atualizar uma chave
     @Upsert
     suspend fun gravarChave(chave: Chave)
 
-    //Excluir
+    // Excluir uma chave
     @Delete
     suspend fun excluirChave(chave: Chave)
-
 }

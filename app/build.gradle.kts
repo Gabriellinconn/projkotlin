@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    // Adicionar suporte para Kapt (se necessário para Room)
 }
 
 android {
@@ -51,6 +52,7 @@ android {
 
 dependencies {
 
+    // Dependências comuns
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -60,14 +62,26 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.room.common)
-    implementation(libs.androidx.room.ktx)
+
+    // Dependências do Room
+    implementation("androidx.room:room-runtime:2.5.0") // Substitua pela versão desejada
+    implementation("androidx.room:room-ktx:2.5.0") // Substitua pela versão desejada
+
+
+    // Firebase Firestore (opcional, mas incluído no original)
     implementation(libs.firebase.firestore.ktx)
+
+    // Dependências de teste
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+
+    // Dependências de debug
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // Outras dependências Kotlin
+    implementation(kotlin("script-runtime"))
 }

@@ -18,21 +18,19 @@ class MainActivity : ComponentActivity() {
 
         val isLocal = false
 
+        //val context = LocalContext.current
         val db = abrirBancoDeDados(this)
-        val localRepository = LocalRepository(db.sapatoDAO())
+        //val viewModel = AfazerViewModel(db.afazerDao())
+        val localRepository = LocalRepository(db.sapatoDao())
+        val remoteRepository = RemoteRepository()
+//        val minimalAPIRepository = MinimalAPIRepository()
+        //val viewModel = AfazerViewModel(localRepository)
 
-
-        // Inicializar o viewModel com um tipo correto antes de entrar na condição
         val viewModel: SapatoViewModel
-
-        // Verifique qual repositório utilizar baseado no valor de isLocal
-        viewModel = if (isLocal) {
-            // Inicialize com o repositório local
-            SapatoViewModel(localRepository)
+        if (isLocal){
+            viewModel = SapatoViewModel(localRepository)
         } else {
-            // Inicialize com o repositório remoto (certifique-se de que RemoteRepository esteja implementado)
-            val remoteRepository = RemoteRepository()  // Garanta que RemoteRepository esteja implementado
-            SapatoViewModel(remoteRepository)
+            viewModel = SapatoViewModel(remoteRepository)
         }
 
         setContent {
