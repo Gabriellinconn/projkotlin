@@ -1,5 +1,6 @@
 package br.edu.up.planner.ui.screens.sapataria
 
+import Sapato
 import kotlinx.coroutines.flow.Flow
 
 interface IRepository {

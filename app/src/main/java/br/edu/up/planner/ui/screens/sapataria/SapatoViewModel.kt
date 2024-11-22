@@ -1,5 +1,6 @@
 package br.edu.up.planner.ui.screens.sapataria
 
+import Sapato
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers

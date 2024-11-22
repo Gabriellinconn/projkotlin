@@ -1,6 +1,5 @@
 package br.edu.up.planner.ui.screens.chaveiro
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,11 +14,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import br.edu.up.planner.ui.screens.util.SECTopBar
+import br.edu.up.planner.ui.screens.sapataria.SapatoViewModel
+import kotlinx.coroutines.launch
+
+// Rotas
 
 // Rotas
 object ChavesRota {
@@ -27,155 +31,219 @@ object ChavesRota {
     const val TELA_INCLUIR_CHAVES_ROTA = "incluir_chaves"
 }
 
+
+
 // Tela principal
 @Composable
-fun TelaChavesAfazer(drawerState: DrawerState) {
+fun TelaChavesAfazer(drawerState: SapatoViewModel, navController: NavHostController) {
+
     val serviçosChaves = mutableListOf(
-        ChavesAfazer(
-            modelochave = "Chave Papaiz",
-            nomecliente = "Wellinton",
-            preco = 24.00,
-            formaPagamento = 1,
-            tipo = 1,
-            concluido = false,
-            pago = true,
-            id = 1,
-            quantidade = 2
-        ),
-        ChavesAfazer(
-            modelochave = "Chave GOLD",
-            nomecliente = "Cleber",
-            preco = 18.00,
-            formaPagamento = 2,
-            tipo = 2,
-            concluido = true,
-            pago = false,
-            id = 2,
-            quantidade = 1
-        ),
-        ChavesAfazer(
-            modelochave = "Aliança",
-            nomecliente = "Junior",
-            preco = 36.00,
-            formaPagamento = 3,
-            tipo = 1,
-            concluido = false,
-            pago = false,
-            id = 3,
-            quantidade = 1
-        ),
+        Chave(pago = true, modelochave = "Papaiz", nomecliente = "pedro", preco = 18.00, formaPagamento = 1, tipo = 1, quantidade = 2, concluido = false, chaveId = 4),
+        Chave(pago = true, modelochave = "Papaiz", nomecliente = "pedro", preco = 18.00, formaPagamento = 1, tipo = 1, quantidade = 2, concluido = false, chaveId = 5),
     )
 
-    val navCtrlTarefas = rememberNavController()
+    val navCtrlChave = rememberNavController()
 
     Scaffold(
-        topBar = { SECTopBar(drawerState) },
         content = { paddingValues ->
-            Box(modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
             ) {
                 NavHost(
-                    navController = navCtrlTarefas,
+                    navController = navCtrlChave,
                     startDestination = ChavesRota.TELA_LISTAR_CHAVES_ROTA
                 ) {
                     composable(ChavesRota.TELA_LISTAR_CHAVES_ROTA) {
                         TelaListagemChaves(chavesAfazer = serviçosChaves)
                     }
                     composable(ChavesRota.TELA_INCLUIR_CHAVES_ROTA) {
-                        TelaIncluirChaves()
+                        TelaIncluirChaves(navController = navCtrlChave,(
+                                viewModel()
+                                )
+                        )
                     }
                 }
             }
         },
-        floatingActionButton = {
-            FloatButton(navController = navCtrlTarefas)
-        }
+        floatingActionButton = { FloatButton(navController = navCtrlChave) }
+
     )
 }
 
 // Tela de listagem
 @Composable
-private fun TelaListagemChaves(chavesAfazer: MutableList<ChavesAfazer>) {
+fun TelaListagemChaves(chavesAfazer: MutableList<Chave>) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 16.dp, bottom = 90.dp),
+            .padding(vertical = 16.dp),
         contentPadding = PaddingValues(16.dp)
     ) {
         items(chavesAfazer) { chave ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                shape = RoundedCornerShape(8.dp),
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = chave.modelochave,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 5.dp)
-                    )
-                    Text(
-                        text = if (chave.tipo == 1) "Chave Normal" else "Chave Tetra",
-                        fontSize = 16.sp,
-                        modifier = Modifier.padding(bottom = 5.dp)
-                    )
-                    Text(
-                        text = "Quantidade: ${chave.quantidade}",
-                        fontSize = 14.sp,
-                        modifier = Modifier.padding(bottom = 5.dp)
-                    )
-                    Text(
-                        text = "Cliente: ${chave.nomecliente}",
-                        fontSize = 16.sp,
-                        modifier = Modifier.padding(bottom = 5.dp)
-                    )
-                    Text(
-                        text = "#${chave.id}",
-                        fontSize = 14.sp,
-                        modifier = Modifier.padding(bottom = 5.dp)
-                    )
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 5.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "R$ ${chave.preco}",
-                            fontSize = 16.sp
-                        )
-                        Text(
-                            text = when (chave.formaPagamento) {
-                                1 -> "Dinheiro"
-                                2 -> "Cartão"
-                                3 -> "Pix"
-                                else -> "Não informado"
-                            },
-                            fontSize = 16.sp
-                        )
-                        Text(
-                            text = if (chave.pago) "Pago" else "Não pago",
-                            color = if (chave.concluido) Color.Green else Color.Red,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                    Text(
-                        text = if (chave.concluido) "Concluído" else "Pendente",
-                        color = if (chave.concluido) Color.Green else Color.Yellow,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
+            ChaveCard(chaveAfazer = chave)
         }
     }
 }
+
+// Card de um sapato
+@Composable
+fun ChaveCard(chaveAfazer: Chave) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        shape = RoundedCornerShape(8.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = chaveAfazer.nomecliente,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 5.dp)
+            )
+            Text(
+                text = chaveAfazer.modelochave,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(bottom = 5.dp)
+            )
+            Text(
+                text = "ID: #${chaveAfazer.chaveId}",
+                fontSize = 14.sp,
+                modifier = Modifier.padding(bottom = 5.dp)
+            )
+            Text(
+                text = "Quantidade: #${chaveAfazer.quantidade}",
+                fontSize = 16.sp,
+                modifier = Modifier.padding(bottom = 5.dp)
+            )
+            Text(
+                text = if (chaveAfazer.tipo == 1 ) "Normal" else "Tetra",
+                fontSize = 16.sp
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 5.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "R$ ${chaveAfazer.preco}",
+                    fontSize = 16.sp
+                )
+                Text(
+                    text = when (chaveAfazer.formaPagamento) {
+                        1 -> "Dinheiro"
+                        2 -> "Cartão"
+                        3 -> "Pix"
+                        else -> "Não informado"
+                    },
+                    fontSize = 16.sp
+                )
+                Text(
+                    text = if (chaveAfazer.pago) "Pago" else "Não pago",
+                    color = if (chaveAfazer.concluido) Color.Green else Color.Red,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+            Text(
+                text = if (chaveAfazer.concluido) "Concluído" else "Pendente",
+                color = if (chaveAfazer.concluido) Color.Green else Color.Yellow,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
+// Tela de inclusão
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TelaIncluirChaves(navController: NavController, chaveId: Int? = null) {
+    // Instanciar o ViewModel dentro do Composable corretamente
+    val viewModel: ChaveViewModel = viewModel()
+
+    var pago by remember { mutableStateOf(false) }
+    var modelochave by remember { mutableStateOf("") }
+    var nomecliente by remember { mutableStateOf("") }
+    var concluido by remember { mutableStateOf((false)) }
+    var formaPagamento by remember { mutableStateOf(0) }
+    var preco by remember { mutableStateOf((0.0)) }
+    var tipo by remember { mutableStateOf(0) }
+    var quantidade by remember { mutableStateOf(0) }
+    var chaveId by remember { mutableStateOf(0) }
+
+
+    val coroutineScope = rememberCoroutineScope()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "Adicionar Pedido", fontSize = 24.sp, color = Color.Black)
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = modelochave,
+            onValueChange = { modelochave = it },
+            label = { Text("Modelo da Chave") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = nomecliente,
+            onValueChange = { nomecliente = it },
+            label = { Text("Nome do Cliente") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = {
+            coroutineScope.launch {
+                // Criar o objeto sapato
+                val chaveSalvar = Chave(
+                    chaveId = chaveId,
+                    pago = pago,
+                    modelochave = modelochave,
+                    nomecliente = nomecliente,
+                    preco = preco,
+                    formaPagamento = formaPagamento,
+                    concluido = concluido,
+                    tipo = tipo,
+                    quantidade = quantidade
+
+                )
+
+                // Salvar no ViewModel ou repositório
+                viewModel.gravar(chaveSalvar)
+                navController.popBackStack()
+            }
+        }) {
+            Text("Adicionar Pedido")
+        }
+    }
+}
+
+// Botão flutuante
+@Composable
+fun FloatButton(navController: NavController) {
+    FloatingActionButton(onClick = {
+        navController.navigate(ChavesRota.TELA_INCLUIR_CHAVES_ROTA)
+    }) {
+        Icon(
+            imageVector = Icons.Default.Add,
+            contentDescription = "Adicionar"
+        )
+    }}
+
 
 // Tela de inclusão
 @OptIn(ExperimentalMaterial3Api::class)
@@ -221,28 +289,3 @@ fun TelaIncluirChaves() {
     }
 }
 
-// Botão flutuante
-@Composable
-fun FloatButton(navController: NavController) {
-    FloatingActionButton(onClick = {
-        navController.navigate(ChavesRota.TELA_INCLUIR_CHAVES_ROTA)
-    }) {
-        Icon(
-            imageVector = Icons.Default.Add,
-            contentDescription = "Adicionar"
-        )
-    }
-}
-
-// Classe de dados
-data class ChavesAfazer(
-    var pago: Boolean,
-    var modelochave: String,
-    var nomecliente: String,
-    var concluido: Boolean = false,
-    var preco: Double,
-    var formaPagamento: Int? = null,
-    var tipo: Int, // 1 = Normal, 2 = Tetra
-    var quantidade: Int,
-    var id: Int? = null
-)

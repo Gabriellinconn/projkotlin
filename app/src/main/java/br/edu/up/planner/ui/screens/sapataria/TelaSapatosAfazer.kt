@@ -1,6 +1,6 @@
 package br.edu.up.planner.ui.screens.sapataria
 
-import android.widget.Toast
+import Sapato
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,7 +21,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import br.edu.up.planner.ui.screens.util.SECTopBar
 import kotlinx.coroutines.launch
 
 // Rotas
@@ -30,20 +29,19 @@ object SapatosRota {
     const val TELA_INCLUIR_SAPATOS_ROTA = "incluir_sapatos"
 }
 
-
-
 // Tela principal
 @Composable
-fun TelaSapatosAfazer(drawerState: DrawerState, navController: NavHostController) {
-    val serviçosSapatos = mutableListOf(
-        Sapato(pago = true, nomeSapato = "Tênis Nike", preco = 18.00, formaPagamento = 1, par = false, concluido = false, descricao = "Reparar sola", id = 1),
-        Sapato(pago = false, nomeSapato = "Tênis Adidas", preco = 50.00, formaPagamento = 4, par = true, concluido = true, descricao = "Trocar cadarço", id = 2)
-    )
+fun TelaSapatosAfazer(navController: NavHostController, viewModel: SapatoViewModel) {
+    val sapatos by viewModel.sapatos.collectAsState()
 
-    val navCtrlSapatos = rememberNavController()
+    val serviçosSapatos = remember {
+        mutableListOf(
+            Sapato(pago = true, nomeSapato = "Tênis Nike", preco = 18.00, formaPagamento = 1, par = false, concluido = false, descricao = "Reparar sola", sapatoId = 1),
+            Sapato(pago = false, nomeSapato = "Tênis Adidas", preco = 50.00, formaPagamento = 4, par = true, concluido = true, descricao = "Trocar cadarço", sapatoId = 2)
+        )
+    }
 
     Scaffold(
-        topBar = { SECTopBar(drawerState) },
         content = { paddingValues ->
             Box(
                 modifier = Modifier
@@ -51,22 +49,19 @@ fun TelaSapatosAfazer(drawerState: DrawerState, navController: NavHostController
                     .padding(paddingValues)
             ) {
                 NavHost(
-                    navController = navCtrlSapatos,
+                    navController = navController,
                     startDestination = SapatosRota.TELA_LISTAR_SAPATOS_ROTA
                 ) {
                     composable(SapatosRota.TELA_LISTAR_SAPATOS_ROTA) {
                         TelaListagemSapatos(sapatosAfazer = serviçosSapatos)
                     }
                     composable(SapatosRota.TELA_INCLUIR_SAPATOS_ROTA) {
-                        TelaIncluirSapatos(navController = navCtrlSapatos, viewModel = SapatoViewModel(
-                            viewModel()
-                        )
-                        )
+                        TelaIncluirSapatos(navController = navController)
                     }
                 }
             }
         },
-        floatingActionButton = { FloatButton(navController = navCtrlSapatos) }
+        floatingActionButton = { FloatButton(navController = navController) }
     )
 }
 
@@ -111,7 +106,7 @@ fun SapatoCard(sapatoAfazer: Sapato) {
                 modifier = Modifier.padding(bottom = 5.dp)
             )
             Text(
-                text = "ID: #${sapatoAfazer.id}",
+                text = "ID: #${sapatoAfazer.sapatoId}",
                 fontSize = 14.sp,
                 modifier = Modifier.padding(bottom = 5.dp)
             )
@@ -156,24 +151,12 @@ fun SapatoCard(sapatoAfazer: Sapato) {
 // Tela de inclusão
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TelaIncluirSapatos(navController: NavController, viewModel: SapatoViewModel, sapatoId: Int? =null) {
-
-    //                    var id: Int? = null,
-//                val nomeSapato: String,
-//                val descricao: String,
-//                val concluido: Boolean = false,
-//                val preco: Double,
-//                val formaPagamento: Int,
-//                val par: Boolean = false
+fun TelaIncluirSapatos(navController: NavController) {
+    val viewModel: SapatoViewModel = viewModel()
 
     var nomeSapato by remember { mutableStateOf("") }
     var descricao by remember { mutableStateOf("") }
-    var concluido by remember { mutableStateOf((false)) }
-    var preco by remember { mutableStateOf((0.0)) }
-    var formaPagamento by remember { mutableStateOf(0) }
-    var par by remember { mutableStateOf(false) }
-    var pago by remember { mutableStateOf((false)) }
-
+    var preco by remember { mutableStateOf(0.0) }
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -186,6 +169,7 @@ fun TelaIncluirSapatos(navController: NavController, viewModel: SapatoViewModel,
     ) {
         Text(text = "Adicionar Pedido", fontSize = 24.sp, color = Color.Black)
         Spacer(modifier = Modifier.height(16.dp))
+
         OutlinedTextField(
             value = nomeSapato,
             onValueChange = { nomeSapato = it },
@@ -193,32 +177,27 @@ fun TelaIncluirSapatos(navController: NavController, viewModel: SapatoViewModel,
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
+
         OutlinedTextField(
             value = descricao,
             onValueChange = { descricao = it },
-            label = { Text("Tipo de Sapato") },
+            label = { Text("Descrição") },
             modifier = Modifier.fillMaxWidth()
         )
-
         Spacer(modifier = Modifier.height(16.dp))
+
         Button(onClick = {
             coroutineScope.launch {
-
-                // Adiciona o sapato
                 val sapatoSalvar = Sapato(
-                    id = sapatoId ?: 0, // Se sapatoId for nulo, atribui 0 (ou qualquer outro valor default)
+                    sapatoId = 0,
                     nomeSapato = nomeSapato,
                     descricao = descricao,
-                    concluido = concluido,
+                    concluido = false,
                     preco = preco,
-                    formaPagamento = formaPagamento,
-                    par = par,
-                    pago = pago
-
-
+                    formaPagamento = 0,
+                    par = false,
+                    pago = false
                 )
-                // Salvar o sapato no repositório (futuramente)
-                // Exemplo: viewModel.gravar(sapatoSalvar)
                 viewModel.gravar(sapatoSalvar)
                 navController.popBackStack()
             }
@@ -238,4 +217,5 @@ fun FloatButton(navController: NavController) {
             imageVector = Icons.Default.Add,
             contentDescription = "Adicionar"
         )
-    }}
+    }
+}

@@ -1,33 +1,29 @@
 package br.edu.up.planner.ui.screens.sapataria
 
+import Sapato
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
-//INFRAESTRUTURA DE BANCO DE DADOS
-//https://developer.android.com/training/data-storage/room
-
-// Objetos de manipulação do banco de dados
+// DAO (Data Access Object) para manipulação do banco de dados
 @Dao
 interface SapatoDAO {
 
-    //Listar
-    @Query("select * from sapato")
+    // Listar todos os sapatos
+    @Query("SELECT * FROM sapato")
     fun listarSapatos(): Flow<List<Sapato>>
-    //suspend fun listarAfazeres(): List<Afazer>
 
-    //Buscar por Id
-    @Query("select * from sapato where id = :idx")
+    // Buscar sapato por ID
+    @Query("SELECT * FROM sapato WHERE sapatoId = :idx")
     suspend fun buscarSapatoPorId(idx: Int): Sapato
 
-    //Gravar @Update @Insert
+    // Gravar (inserir ou atualizar)
     @Upsert
-    suspend fun gravarSapato(afazer: Sapato)
+    suspend fun gravarSapato(sapato: Sapato)
 
-    //Excluir
+    // Excluir
     @Delete
-    suspend fun excluirSapato(afazer: Sapato)
-
+    suspend fun excluirSapato(sapato: Sapato)
 }
